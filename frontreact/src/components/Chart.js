@@ -1,8 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
+import '../styles/pages/_report.scss'
 export const Chart = ({ width = 600, height = 600, data }) => {
   const barChart = useRef();
+
+  var tooltip = d3.select("body").append("div").attr("class", "toolTip");
 
   useEffect(() => {
     const margin = { top: 10, left: 50, bottom: 40, right: 10 };
@@ -26,6 +29,33 @@ export const Chart = ({ width = 600, height = 600, data }) => {
       .padding(0.1);
 
     // Continue with implementation. Don't forget the tooltip
+
+    g.selectAll(".bar")
+      	.data(data)
+      .enter().append("rect")
+      .style('fill', 'blue')
+      .attr('x', item => x(item.name))
+      .attr('y', item => y(parseInt(item.stock)))
+      .attr('height', item => iheight - y(item.stock))
+      .attr('width', x.bandwidth())
+      .on("mouseover", function(obj, item){
+        tooltip
+          .style("display", "inline-block")
+          .style('left', (obj.x + 20) + 'px')
+          .style('top', (obj.y + 20) + 'px')
+          .html((item.name) + "<br>" + (item.stock));
+    })
+    .on("mouseout", function(){ tooltip.style("display", "none");});
+
+    g.append('g')
+      .classed('y--axis', true)
+      .call(d3.axisLeft(y));
+
+    const div = d3.select('body')
+      .append('div')
+      .style('position', 'absolute')
+      .style('opacity', 0);
+
   });
 
   return (
